@@ -1,0 +1,1224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta name="GENERATOR" content="TtH 3.01">
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+
+                            	 	 			   	 										 	 							
+			          																											 		                      	  	                             </head><body><a href="#bot" name="top">
+        Go to Bottom of Page
+         </a>
+ 
+
+<p>
+
+	   <a href="#linkSection-0"> [Previous Section]</a> 
+	    <a name="linkSection-1"> 
+     </a><a href="#linkSection-2"> [Next Section]</a>
+	    
+ 
+
+
+</p><p>
+                                                                         
+</p><center><font size="+2">                LECTURE 7<br>
+                Chee Yap
+                </font></center>
+		
+<title> JAVA SWING GUI TUTORIAL</title>
+    
+<h1 align="center">JAVA SWING GUI TUTORIAL </h1>
+          
+
+<p>
+These notes are based on the excellent book,
+"Core Java, Vol 1" by Horstmann and Cornell,
+chapter 7, graphics programming.
+
+</p><p>
+ 	 		<font color="#0000FF">
+
+</font></p><p><font color="#0000FF">
+<b>Introduction to AWT and Swing.&nbsp;&nbsp;</b>
+		<font color="#000000">
+
+
+</font></font></p><p><font color="#0000FF"><font color="#000000">
+	AWT relies on "peer-based" rendering to achieve platform
+independence.  But subtle difference in platforms resulted in
+inconsistent look-and-feel, and platform-dependent bugs.
+Swing avoids these problems by using a non-peer-based approach,
+with the result it may be slower than AWT.  
+To recover the look-and-feel of each platform
+(Windows, Motif, etc),
+it allows programs to specify the look-and-feel.
+It also has a new look-and-feel, called "Metal".
+Note that AWT is not deprecated as a result of Swing.
+
+</font></font></p><p><font color="#0000FF"><font color="#000000">
+Terminology:
+<br>
+  Component: a user interface element that occupies screen space. 
+	E.g., button, text field, scrollbar.
+<br>
+  Container: screen area or component that can hold other components.
+	E.g., window, panel.
+<br>
+  Event Detector: (non standard terminology?)
+	I guess most components detects events and generates a
+	corresponding event object.  This is sent to the
+	registered "listeners" for this event(component?).
+
+</font></font></p><p><font color="#0000FF"><font color="#000000">
+
+	   <a href="#linkSection-1"> [Previous Section]</a> 
+	    <a name="linkSection-2"> 
+     </a><a href="#linkSection-3"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </font></font></p><h2><font color="#0000FF"><font color="#000000"><a name="tth_sEc1">
+1</a>&nbsp;&nbsp; First Step: JFrame </font></font></h2><font color="#0000FF"><font color="#000000">
+         
+
+<p>
+
+</p><p>
+	The following gives the simplest standalone application
+involving Java GUI: 
+
+</p><p>
+	
+</p><pre>	// file: EmptyFrame.java
+	// Adapted from Core Java, vol.1, by Horstmann &amp; Cornell
+	
+	import javax.swing.*;
+	
+	class MyFrame extends JFrame {
+	  public MyFrame() {
+		setTitle("My Empty Frame");
+		setSize(300,200); // default size is 0,0
+		setLocation(10,200); // default is 0,0 (top left corner)
+	  }
+	
+	  public static void main(String[] args) {
+	    JFrame f = new MyFrame();
+	    f.show();
+	  }
+	}
+	
+</pre>
+
+<p>
+You can compile and run this 
+ 
+	 <a href="http://cs.nyu.edu/%7Eyap/classes/visual/03s/lect/l7/prog/EmptyFrame.java">
+	program
+	 </a>
+ 
+but it does not do anything useful.  
+It shows an empty window with the title "My Empty Frame".
+
+</p><p>
+A top-level window is a "frame".  The AWT library has a
+peer-based class called Frame.  In Swing, this is called JFrame.
+Indeed, most of the AWT components (Button, Panel, etc)
+has corresponding Swing counterparts named by prepending a "J"
+(JButton, JPanel, etc).  JFrame is one of the few Swing components
+that are not drawn on a canvas.  A JFrame is a "container" meaning
+it can contain other components such as bottons and text fields.
+
+</p><p>
+Question: what is the relation between f.show() and f.setVisible(true)?
+Ans: equivalent.
+
+</p><p>
+
+	   <a href="#linkSection-2"> [Previous Section]</a> 
+	    <a name="linkSection-3"> 
+     </a><a href="#linkSection-4"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp; Second Step: WindowListener </h2>
+         
+
+<p>
+
+</p><p>
+The above program is only hidden when you click the
+window close button.  To truly kill the program,
+you need to type "CNTL-C".  Our next program called
+ 
+	 <a href="http://cs.nyu.edu/%7Eyap/classes/visual/03s/lect/l7/prog/EmptyFrame1.java">
+	EmptyFrame1.java
+	 </a>
+ 
+will fix this problem.
+
+</p><p>
+This brings us to the GUI interaction model.
+When you click the window close button, it generates a
+window closing event.  But some object has to be a "listener"
+for this event, and to act upon it.  The Java model requires a
+<b>WindowListener</b> object for events generated by the frame.
+WindowListener is an interface with 7 methods to handle events
+of various kinds ("window closing event" is the one of interest here).
+When a window event occurs, the GUI model will ask the frame
+to handle the event using one of these 7 methods.
+Suppose you have implement WindowListener with a class "Terminator" which
+closes your window properly.
+Now, all you do is register an instance of Terminator:
+
+</p><p>
+	
+</p><pre>	class MyFrame extends JFrame {
+	  public MyFrame() {
+	    addWindowListener( new Terminator());
+	    ...
+	  }
+	  ...
+	} 
+	
+</pre>
+
+<p>
+But it is tedious to write a class "Terminator" to implement
+WindowListener when most of these 7 methods turn out to be null.
+So AWT provides a default implementation called <b>WindowAdapter</b>
+(found in java.awt.event.*)
+where all these 7 methods are null!  But you can just extend this
+class and write any non-null methods to override the default:
+
+</p><p>
+	
+</p><pre>	class Terminator extends WindowAdapter {
+	  public void windowClosing(WindowEvent e) {
+	    System.exit(0); 
+	  }
+	}
+	
+</pre>
+
+<p>
+Here is our actual code:
+
+</p><p>
+
+</p><pre>// file: EmptyFrame1.java
+
+import java.awt.event.*;
+import javax.swing.*;
+
+class EmptyFrame1 extends JFrame {
+
+  // Constructor:
+  public EmptyFrame1() {
+	setTitle("My Closeable Frame");
+	setSize(300,200); // default size is 0,0
+	setLocation(10,200); // default is 0,0 (top left corner)
+
+	// Window Listeners
+	addWindowListener(new WindowAdapter() {
+	  	public void windowClosing(WindowEvent e) {
+		   System.exit(0);
+	  	} //windowClosing
+	} );
+  } 
+
+  public static void main(String[] args) {
+    JFrame f = new EmptyFrame1();
+    f.show();
+  } //main
+} //class EmptyFrame1
+
+
+</pre>
+
+<p>
+Note that we did not declare the terminator
+class; instead we use an anonymous class:
+<tt>new WindowAdapter() { ... } </tt>.
+Remark: sometimes, you may also need to
+call dispose() before System.exit(0),
+to return any system resources.  But dispose
+alone without System.exit(0) is not enough.
+
+</p><p>
+
+	   <a href="#linkSection-3"> [Previous Section]</a> 
+	    <a name="linkSection-4"> 
+     </a><a href="#linkSection-5"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp; Third Step: Adding a Panel </h2>
+         
+
+<p>
+
+</p><p>
+We can next add panels to frames.  The program called MyPanel.java
+illustrates adding a panel.  There are 2 steps:
+
+</p><p>
+First, you need to define your own "MyPanel" class, which should
+extend the JPanel class.  The main method you need to define
+in MyPanel is the "paintComponent" method, overriding the default
+method in JPanel.
+
+</p><p>
+Second, you need to add an instance of MyPanel to the JFrame.
+Not just the JFrame, but to a specific layer of the JFrame.
+A JFrame has several layers, but the main one for
+adding components is called "content pane".
+We need to get this pane:
+	
+</p><pre>	Container contentPane = frame.getContentPane();
+	
+</pre>
+Then add various components to it.  In the present
+example, we add a JPanel:
+
+<p>
+	
+</p><pre>	contentPane.add( new MyPanel()); 
+	
+</pre>
+
+<p>
+
+	   <a href="#linkSection-4"> [Previous Section]</a> 
+	    <a name="linkSection-5"> 
+     </a><a href="#linkSection-6"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp; Fourth Step: Fonts in Panels </h2>
+         
+
+<p>
+
+</p><p>
+We next address the issue of fonts.
+Font families have several attributes:
+	
+</p><ul><p>
+</p><li> Font name.  E.g. Helvetica, Times Roman</li>
+<p>
+</p><li> Font style.  E.g., PLAIN, BOLD, ITALIC</li>
+<p>
+</p><li> Font size.  E.g., 12 Point</li>
+</ul>
+To construct a Font object, do
+	
+<pre>	Font helv14b = new Font("Helvetica", Font.BOLD, 14);
+	
+</pre>
+To use the font, call the setFont() method in the graphics object g:
+	<tt>g.setFont(helvb14);</tt>
+You can also specify font styles such as
+<tt>Font.BOLD + Font.ITALIC</tt>.
+Use <tt>getAvailableFontFamilyNames</tt> of GraphicsEnvironment class to
+determine the fonts you can use.
+Instead of Font names, AWT defines 5 "logical font names":
+	
+<pre>	SansSerif, Serif, Monospaced, Dialog, DialogInput
+	
+</pre>
+which are always available. 
+
+<p>
+These concepts are illustrated below in our elaborated
+<tt>paintComponent</tt> method.  The goal is ostensibly to print
+"Hello" in bold and "World!" in bold-italic fonts.
+To do this, we need to get the <b>FontMetrics</b> object
+which has methods to measure the length and height of a string, say.
+
+</p><p>
+	
+</p><pre>	/*************************************************************
+         * @file: TextPanel.java 
+	 * @source: adapted from Horstmann and Cornell, Core Java
+	 * @history: Visualization Course, Spring 2003, Chee Yap
+	 *************************************************************/
+
+	import java.awt.*;
+	import java.awt.event.*;
+	import javax.swing.*;
+	
+	/*************************************************************
+         *	TextPanel Class (with main method)
+	 *************************************************************/
+	
+	class TextPanel extends JPanel {
+	  // override the paintComponent method
+	  // THE MAIN DEMO OF THIS EXAMPLE:
+	
+	  public void paintComponent(Graphics g) {
+	    super.paintComponent(g);
+	    Font f = new Font("SansSerif", Font.BOLD, 14);
+	    Font fi = new Font("SansSerif", Font.BOLD + Font.ITALIC, 14);
+	    FontMetrics fm = g.getFontMetrics(f);
+	    FontMetrics fim = g.getFontMetrics(fi);
+	    int cx = 75; int cy = 100;
+	    g.setFont(f);
+	    g.drawString("Hello, ", cx, cy);
+	    cx += fm.stringWidth("Hello, ");
+	    g.setFont(fi);
+	    g.drawString("World!", cx, cy);
+	  } //paintComponent
+
+	  //=============================================
+	  ///////////// main ////////////////////////////
+
+	  public static void main(String[] args) {
+	    JFrame f = new MyFrame("My Hello World Frame");
+	    f.show();
+	  } //main
+	
+	} //class TextPanel
+	
+	/*************************************************************
+         	MyFrame Class
+	 *************************************************************/
+
+	class MyFrame extends JFrame {
+	  public MyFrame(String s) {
+		// Frame Parameters
+		setTitle(s);
+		setSize(300,200); // default size is 0,0
+		setLocation(10,200); // default is 0,0 (top left corner)
+	
+		// Window Listeners
+		addWindowListener(new WindowAdapter() {
+		  public void windowClosing(WindowEvent e) {
+			System.exit(0);
+		  } //windowClosing
+		}); //addWindowLister
+	
+		// Add Panels
+		Container contentPane = getContentPane();
+		contentPane.add(new TextPanel());
+	 
+	  } //constructor MyFrame
+	} //class MyFrame
+	
+	
+</pre>
+
+<p>
+NOTE: The java.awt.FontMetrics.* class also has methods to get
+	other properties of the font: its ascent, descent,
+	leading, height, etc.
+
+</p><p>
+
+	   <a href="#linkSection-5"> [Previous Section]</a> 
+	    <a name="linkSection-6"> 
+     </a><a href="#linkSection-7"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp; Fifth Step: Basic Graphics </h2>
+         
+
+<p>
+
+</p><p>
+In "DrawFrame.java", we do basic 2D-graphics.
+We use the following primitives: drawXXX where
+		XXX = Polygon, Arc, Line.  
+	We also use the "fillXXX" versions.
+	Important point: in java.awt, you need to use a "canvas"
+	to draw.  In "Swing", you draw on any kind of panel.
+
+</p><p>
+ 	 		<font color="#0000FF">
+
+</font></p><p><font color="#0000FF">
+<b>More Basic Graphics&nbsp;&nbsp;</b>
+		<font color="#000000">
+
+
+</font></font></p><p><font color="#0000FF"><font color="#000000">
+	In "DrawFrame1.java", we further look at
+	the primitives drawXXX where
+	
+</font></font></p><pre><font color="#0000FF"><font color="#000000">		XXX = Rect, RoundRect, Oval.
+	
+</font></font></pre><font color="#0000FF"><font color="#000000">
+	We also replace "drawXXX" by "fillXXX".
+
+<p>
+
+	   <a href="#linkSection-6"> [Previous Section]</a> 
+	    <a name="linkSection-7"> 
+     </a><a href="#linkSection-8"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp; 6th Step: Basic Event Handling </h2>
+         
+
+<p>
+
+</p><p>
+	This is shown in ButtonFrame.java demo.
+
+</p><p>
+	We consider the class Ëvent", which are all derived
+from java.util.EventObject.  Examples of events
+are "button pushed", "key pushed", "mouse moved".  Some
+subclasses of Event are <b>ActionEvents</b> and <b>WindowEvents</b>.
+
+</p><p>
+To understand events, you need to consider two
+types of interfaces, and their relationship:
+<b>Event Detectors</b> and <b>Event Listeners</b>.
+The former is set up to detect the occurence
+of certain types of event, and it sends notices
+to the listeners.  It is the listeners that take
+the appropriate action.
+
+</p><p>
+Examples of Event Detectors are windows or buttons.  
+In this first event demo, we use buttons, as they
+generate the simplest kind of events.  Buttons detects only one
+type of event - called ActionEvents.  In contrast, there are
+seven kinds of WindowEvents.
+For buttons, the ÄctionListener" is appropriate.
+But in order for the event objects to know which listener object
+to send the events to, we need to do three things:
+
+</p><p>
+	(1) Implement the listener interface using ANY reasonable class.
+	    In our example, the class will be an extension of JPanel.
+	    To implement the ActionListener, you need to supply the
+	    method <b>actionPerformed(ActionEvent)</b> (the only method
+	    of this interface).  The class for implementing 
+	    Actionlistener here is "MyPanel":
+
+</p><p>
+	
+</p><pre>		public class MyPanel extends JPanel
+			implements ActionListener {
+		  public void actionPerformed(ActionEvent e){
+		    // reaction to button click goes here
+		    ...
+		  } // actionPerformed
+		} // class MyPanel
+	
+</pre>
+
+<p>
+	    What is the action "..." above?  This is explained below.
+
+</p><p>
+	(2) Create a listener object:
+
+</p><p>
+	
+</p><pre>		Listener lis = new MyPanel();
+	
+</pre>
+
+<p>
+	(3) register this object with the event detector.
+
+</p><p>
+	
+</p><pre>		button.addActionListener(lis); // button is the event detector;
+	
+</pre>
+
+<p>
+	    The general form for registering listener objects is:
+
+</p><p>
+	
+</p><pre>		&lt;eventDetector&gt;.add&lt;EventType&gt;Listener(&lt;listenerObject&gt;);
+	
+</pre>
+
+<p>
+In our present demo, we will have two buttons (redButton and blueButton)
+in a panel.  When redButton is pressed, the background of the panel
+changes to Red, and similarly when the blueButton is pressed.
+Thus, these buttons serve as event detectors.
+To use buttons, we need to create them:
+
+</p><p>
+	
+</p><pre>		private JButton redButton;
+		redButton = new JButton("RED"); // "RED" is label on button
+	
+</pre>
+
+<p>
+	In addition to (or instead of) "RED", we can supply an image file:
+
+</p><p>
+	
+</p><pre>		redButton = new JButton(new ImageIcon("RED.gif");
+	
+</pre>
+
+<p>
+Next, you add the buttons to a panel (called ButtonPanel here).
+We also register the listener object with the buttons - but
+the listener object will be "this" (i.e., current object)!
+
+</p><p>
+	
+</p><pre>	class ButtonPanel extends JPanel {
+	  // members:
+	  private JButton redButton;
+	  private JButton blueButton;
+	  // constructors:
+	  public ButtonPanel() {
+
+	    // create buttons
+	    redButton = new JButton("RED");
+	    blueButton = new JButton("BLUE");
+
+	    // add buttons to current panel
+	    add(redButton);  // add button to current panel
+	    add(blueButton); // add button to current panel
+
+	    // register the current panel as listener for the buttons
+	    redButton.addActionListener(this);  
+	    blueButton.addActionListener(this); 
+
+	  } // ButtonPanel constructor
+	} // ButtonPanel class
+	
+</pre>
+
+<p>
+We now return the details needed in the äctionPerformed(ActionEvent)"
+method from the ActionListener interface.  First, you need to
+find out which Button caused this event.  There are 2 ways
+to find out.  First, the getSource()
+method from EventObject can be used:
+
+</p><p>
+	
+</p><pre>	Color color = getBackground();  // color will be set
+	Object source = e.getSource();
+	if (source == redButton) color = Color.red
+	else if (source == blueButton) color = Color.blue
+	setBackground(color);
+	repaint();  // when do we need this??
+	
+</pre>
+
+<p>
+The second method, specific to ActionEvents, is to use
+the getActionCommand() method, which returns a "command string",
+which defaults to the button label.  Thus,
+
+</p><p>
+	
+</p><pre>	String com = e.getActionCommand();
+	if (com.equals("RED")) ...; // "RED" is the label of redButton
+	else if (com.equals("BLUE")) ...;
+	
+</pre>
+
+<p>
+But the command string need not be the label of the button.
+That can be independently set:
+
+</p><p>
+	
+</p><pre>	redButton.setActionCommand("RED ACTION");
+	
+</pre>
+
+<p>
+The ActionListener interface is also used when
+(a) when an item is selected from a list box with a double click,
+(b) when a menu item is selected
+(c) when an enter key is clicked in the text field
+(d) when a specific time has elapsed for a "Timer" component.
+
+</p><p>
+In our present example of the red and blue buttons,
+the ActionListener interface is implemented
+by MyPanel for a good reason: the action of changing the background
+of the panel to red or blue ought to reside with the panel!
+
+</p><p>
+
+	   <a href="#linkSection-7"> [Previous Section]</a> 
+	    <a name="linkSection-8"> 
+     </a><a href="#linkSection-9"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;  7th Step: Window Events </h2>
+         
+
+<p>
+
+</p><p>
+(NO DEMO PROGRAM HERE! FIX)
+	We now consider the JFrame as an event detector.  A JFrame
+is basically synonymous with a "window" and it detect Window Events.
+We need to implement the "WindowListener" interface to be registered
+with the JFrame.  This interface has 7 methods:
+
+</p><p>
+	
+</p><pre>	public void windowClosed(WindowEvent e)
+	public void windowIconified(WindowEvent e)
+	public void windowOpened(WindowEvent e)
+	public void windowClosing(WindowEvent e)
+	public void windowDeiconified(WindowEvent e)
+	public void windowActivated(WindowEvent e)
+	public void windowDeactivated(WindowEvent e)
+	
+</pre>
+
+<p>
+Recall that we already had a brief introduction
+to this interface, when we extended the "WindowAdapter" class to provide
+default empty implementations for all but the windowClosing method,
+which we implement by a call to "System.exit(0)".  
+In Step 2 above, the extension of WindowAdapter was called Terminator.
+In general, all the AWT listener interfaces with more than one
+method comes with such an adapter class.  Finally, we
+we create an instance of the Terminator class and register it with
+the JFrame using the äddWindowListener(WindowListener wl)" method:
+
+</p><p>
+	
+</p><pre>	class MyFrame extends JFrame {
+	  // Constructor:
+	  public MyFrame() {
+	    addWindowListener(new Terminator());
+	    ...
+	  } // MyFrame Constructor
+	  ...
+	} // MyFrame Class
+	
+</pre>
+
+<p>
+We can even make the "Terminator" anonymous, as an inner class,
+as follows:
+
+</p><p>
+	
+</p><pre>	class MyFrame extends JFrame {
+	  // Constructor:
+	  public MyFrame() {
+	    addWindowListener(new WindowAdapter() {
+	      public void windowClosing(WindowEvent e) {
+	        System.exit(0);
+	      } // windowClosing
+	    }); // WindowAdapter
+	    ...
+	  } // MyFrame Constructor
+	  ...
+	} // MyFrame Class
+	
+</pre>
+
+<p>
+In general, you can create an anonymous class by the
+construct
+	
+</p><pre>	new XXXclass() {... override methods, etc... }
+	
+</pre>
+where <tt>XXXclass</tt> is the class name.
+
+<p>
+Inner classes are also extremely useful, because the
+inner class can automatically get access to all the methods
+and fields of its parent class.
+In Component design, you often want a new class
+to subclass two different classes.  But Java does not
+allow this.  You get around this restriction by
+subclassing a subclass - an inner class is one way
+of doing this.
+
+</p><p>
+An example where you want to program the "windowDeactivated",
+"windowActivated", "windowIconified" and "windowDeiconified" is
+when your window displays an animation.  You would want to stop
+or start the animations when these events occur.
+
+</p><p>
+
+	   <a href="#linkSection-8"> [Previous Section]</a> 
+	    <a name="linkSection-9"> 
+     </a><a href="#linkSection-10"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;  8th Step: Event Classes and Listener Interfaces </h2>
+         
+
+<p>
+
+</p><p>
+	Now that we have seen two types of events (ActionEvents
+and WindowEvents), let us overview the general picture.  Here is
+the event hierarchy:
+	
+</p><pre>				 | ActionEvent*	    | ContainerEv.*
+				 | AdjustmentEv.*   | FocusEvent*   | KeyEvent*
+    EventObject &lt;-- AWT Event &lt;--| ComponentEv.* &lt;--| InputEvent &lt;--|
+				 | ItemEvent*	    | PaintEvent    | MouseEv.*
+				 | TextEvent*	    | WindowEvent*
+	
+</pre>
+
+<p>
+In this hierarchy, only 10 event classes,
+those indicated with asterisks (*) are actually passed
+to listeners. The 10 event classes are classified into
+4 ßemantic" events and 6 "low-level" events.  Intuitively,
+semantic events correspond to what the user intends (e.g., button click),
+while low-level events correspond to physical events.
+
+</p><p>
+Semantic Events
+<br>1) ActionEvent: button click, menu selection, selecting item in list,
+	typing ENTER in text field
+<br>2) AdjustmentEvent: the user adjusted a scroll bar.
+<br>3) ItemEvent: the use made a selection from a set of checkbox or list items
+<br>4) TextEvent: the contents of a text field or area were changed.
+
+</p><p>
+Low-Level Events
+<br>1) ComponentEvent: component is resized, moved, shown, hidden.  It is the
+	base class for all low-level events.
+<br>2) KeyEvent: a key was pressed or released.
+<br>3) MouseEvent: the mouse button was depressed, released, moved, dragged.
+<br>4) FocusEvent: a component got focus, lost focus.
+<br>5) WindowEvent: window was (de)activated, (de)iconified, or closed.
+<br>6) ContainerEvent: a component has been added or removed.
+	Usually, you don't have to worry about this class of event, as
+	these events are (usually) not generated dynamically, but in
+	your program.
+
+</p><p>
+All low-level events is derived from ComponentEvent.  They all have
+a method "getComponent" (it is similar to the "getSource" method
+but the result is already cast as a component).
+
+</p><p>
+There are 11 listener interfaces in java.awt.event:
+
+</p><p>
+
+</p><pre>	ActionListener, 	AdjustmentListener,	ComponentListener*
+	ContainerListener*,	KeyListener*,		MouseListener*
+	MouseMotionListener*,	TextListener,		FocusListener*
+	ItemListener,		WindowListener*.
+
+</pre>
+
+<p>
+The listeners with asterisks (*) have a corresponding adaptor class
+implementing it because they each have more than one method.
+There is a 1-1 correspondence between listeners and event types,
+with one exception: MouseEvents are sent to both MouseListeners
+and MouseMotionListener.  The split into two types of listeners for
+MouseEvents is done for efficiency - so we can ignore an entire class of
+mouse events (such as mouse motion which can generate frequent events).
+
+</p><p>
+
+	   <a href="#linkSection-9"> [Previous Section]</a> 
+	    <a name="linkSection-10"> 
+     </a><a href="#linkSection-11"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;  9th Step: Focus Event </h2>
+         
+
+<p>
+
+</p><p>
+(NO DEMO PROGRAM HERE)
+   (A) In Java, a component has the "focus" if it can receive key strokes.  
+E.g., a text field has the focus when the cursor mark
+becomes visible, ready to receive key strokes.  When a button has
+"focus", you can click it by pressing the space bar.  
+   (B) Only one component can have the focus at any moment.
+The user can choose the component to have focus by a mouse click
+in the component (in some system, just having the
+mouse cursor over a component is sufficient).  
+The TAB key also moves the focus to the "next"
+component, and thus allows you to cycle over all "focusable" components.
+Some components like labels or panels are not "focusable" by
+default.  You can make any component "focusable" or not by overriding
+the ïsFocusTraversable" method to return TRUE or FALSE.
+You can use the "requestFocus" method to move the focus to
+any specific component at run time, or you can use
+"transferFocus" method to move to the next component.
+The notion of "next" component can be changed.
+   (C) The FocusListener interface has 2 methods: focusGained and
+focusLost.  Each takes the "FocusEvent" object as parameter.
+Two useful methods for implementing this interface are
+"getComponent" and ïsTemporary".  The latter returns TRUE if
+the focus lost is temporary and will automatically be restored.
+
+</p><p>
+
+	   <a href="#linkSection-10"> [Previous Section]</a> 
+	    <a name="linkSection-11"> 
+     </a><a href="#linkSection-12"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc10">
+10</a>&nbsp;&nbsp;  10th Step: KeyBoard Events and Sketch Demo </h2>
+         
+
+<p>
+
+</p><p>
+	The "keyPressed" and "keyReleased" methods of the
+KeyListener interface handles raw keystrokes.
+However, another method "keyTyped" combines the
+response to these two types of events, and returns
+the characters actually typed.  Java distinguished
+between "characters" and "virtual key codes".  The latter
+are indicated by the prefix of "VK_" such as "VK_A" and
+"VK_SHIFT".  These 3 methods are best illustrated with
+an example:
+
+</p><p>
+	Suppose a user types an lower case ä".  There
+are only 3 events:
+	<br>(a) Pressed A key (keyPressed called for VK_A)
+	<br>(b) Typed ä" (keyTyped called for character ä") 
+	<br>(c) Released A key (keyReleased called for VK_A)
+
+</p><p>
+Now, suppose the user types an upper case Ä".  There are 5 events:
+	<br>(a) Pressed the SHIFT key (keyPressed called for VK_SHIFT)
+	<br>(b) Pressed A key (keyPressed called for VK_A)
+	<br>(c) Typed Ä" (keyTyped called for character Ä") 
+	<br>(d) Released A key (keyReleased called for VK_A)
+	<br>(e) Released SHIFT key (keyReleased called for VK_SHIFT)
+
+</p><p>
+To work with keyPressed and keyReleased methods, you need to
+check the "key code". 
+	
+</p><pre>	public void keyPressed(KeyEvent e) {
+	  int keyCode = e.getKeyCode();
+	  ...
+	}
+	
+</pre>
+The key code (defined in the KeyEvent class) is one of the
+following constants:
+	
+<pre>	VK_A VK_B ... VK_Z
+	VK_0 ... VK_9
+	VK_COMMA VK_PERIOD ... etc
+	
+</pre>
+Instead of tracking the key codes in the case of
+combination strokes, the following methods which returns
+a Boolean value are useful:
+"KeyEvent.isShiftDown()", "KeyEvent.isControlDown()",
+"KeyEvent.isAltDown()" and "KeyEvent.isMetaDown()".
+
+<p>
+To work with keyTyped method, you can call the "getKeyChar" method.
+
+</p><p>
+The following demo is a Ëtch-A-Sketch" toy where
+you move a pen up, down, left, right with cursor keys
+or h, j, k, l.  Holding down the SHIFT key at the same time
+will move the pen by larger increments.
+
+</p><p>
+
+	   <a href="#linkSection-11"> [Previous Section]</a> 
+	    <a name="linkSection-12"> 
+     </a><a href="#linkSection-13"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc11">
+11</a>&nbsp;&nbsp;  11th Step: Mouse Events and Mouse Demo </h2>
+         
+
+<p>
+
+</p><p>
+	Some mouse events such as clicking on buttons and menus
+are handled internally by the various components and translated
+automatically into the appropriate semantic event (e.g,
+handled by the actionPerformed or itemStateChanged methods).
+But to draw with a mouse, we need to trap mouse events.
+
+</p><p>
+When the user clicks a mouse button, three kinds od
+MouseEvents are generated.  The corresponding three MouseListener methods
+are: "mousePressed", "mouseReleased" and "mouseClicked".
+The last method generates only one event for each pressed-released
+combination.  To obtain the position of the mouse when the
+events occur, use the methods MouseEvent.getX() and MouseEvent.getY().
+To distinguish between single and double (and even triple) clicks, use the 
+MouseEvent.getClickCount() method.
+
+</p><p>
+SIMPLIFY the example in the book (how about drawing a line
+to the current mouse click?)  But I already have this under
+the "rubber line" example.
+
+</p><p>
+
+	   <a href="#linkSection-12"> [Previous Section]</a> 
+	    <a name="linkSection-13"> 
+     </a><a href="#linkSection-14"> [Next Section]</a>
+	    
+ 
+
+         
+                
+ </p><h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;  12th Step: Action Interface </h2>
+         
+
+<p>
+
+</p><p>
+   (I) WHAT ARE ACTIONS?
+Java even model allows us to choose any class as
+listener for its events.  So far, we have let each class
+(i.e., "this") be its own listener.  For bigger examples,
+we want to separate the responsibilites of detecting from
+listening/responding.  We need an independent notion of äction"
+(="responding to action").  This is logically sensible,
+since the same action may be needed for different events.
+For example, suppose the action is
+to ßet background color" (to red/blue, etc).  This action
+may be initiated in 3 ways:
+	<br>
+	(a) click on a color button (as in example above)
+	<br>
+	(b) selection of a color in a set-background menu
+	<br>
+	(c) press of a key (B=blue, R=red, etc).
+
+</p><p>
+   (II) METHODS OF ACTION INTERFACE:
+Java provides the Äction" interface with these methods:
+<br>
+   (1) void actionPerformed(ActionEvent e)
+	- performs the action corresponding to event e
+<br>
+   (2) void setEnabled(boolean b)
+	- this turns the action on or off
+<br>
+   (3) boolean isEnabled()
+	- checks if the action is on
+<br>
+   (4) void putValue(String key, Object val)
+	- store a value under a key (String type).  There are 2
+	   standard keys: Action.NAME (name of action) and
+	   Action.SMALL_ICON (icons for action).  E.g.,
+	 Action.putValue(Action.SMALL_ICON, new ImageIcon("red.gif"));
+<br>
+   (5) Object getValue(String key)
+	- retrieve the value stored under key
+<br>
+   (6) void addPropertyChangeListener(PropertyChangeListener listener)
+	- Add a "Changelistener" object to our current list.
+	   Menus and toolbars are examples of "ChangeListeners", as these
+	   components must be notified when a property of an action that
+	   they are responsible for changes.
+<br>
+   (7) void removePropertyChangeListener(PropertyChangeListener listener)
+	- Similar to method in (6), but this one is to remove a
+	   "ChangeListener" from current list.
+<br>
+Actually, Äction" extends ÄctionListener" and method (1)
+above was the ONLY method in the ActionListener interface
+(cf. the ButtonFrame.java demo above).  This method 
+Thus, an Action object can be used whenever an ActionListener object
+is expected.  
+
+</p><p>
+   (III) MenuAction.java: IMPLEMENTING and USING AN ACTION INTERFACE.
+	There are three steps:
+<br>
+		STEP 1:  Define a class implementing the Action interface
+<br>
+		STEP 2:  Instance the Action class
+<br>
+		STEP 3:  Associate the action instance with components
+<br>
+		STEP 4:  Add the components to the windowing system
+
+</p><p>
+STEP 1: As usual, there is a default implementation of the Action
+interface, called ÄbstractAction".  You can adapt from this class, and
+only äctionPerformed" method needs to be explicitly programed by
+you.  Usually, you also want to provide a constructor to set the
+values stored under various keys, and your class will want a member
+variable "target" to remember the component where the action is to be
+performed (recall that the Action object need not be the component
+itself, after our decoupling of ëvent generator" from ëvent listener").
+Here is an implementation of the action ßet background color":
+
+</p><p>
+	
+</p><pre>	class BackgroundColorAction extends AbstractAction {
+	  //members:
+	    private Component target;  // where you want the action done!
+
+	  //constructor:
+	  public BackgroundColorAction(
+		String name, Icon i, Color c, Component comp) {
+	    putValue(Action.NAME, name);
+	    putValue(Action.SMALL\_ICON, i);
+	    putValue("Color", c);
+	    target = comp;
+	  } // constructor
+
+	  //methods:
+	  public void actionPerformed(ActionEvent e) {
+	    Color c = (Color)getValue("Color");
+	    target.setBackground(c);
+	    target.repaint();
+	  }// actionPerformed method
+	}// BackgroundColorAction class
+	
+</pre>
+
+<p>
+STEP 2: we need to instance the class:
+
+</p><p>
+	
+</p><pre>	Action redAction = new BackgroundColorAction(
+		"Red", new ImageIcon("red.gif"), Color.red, panel);
+	
+</pre>
+
+<p>
+STEP 3: associate the action with components or their instances:
+The following associates "redAction" with a component instance.
+The component illustrated here is a JButton instance.
+
+</p><p>
+	
+</p><pre>	JButton redButton = new JButton("Red");
+	redButton.addActionListener(redAction);
+	
+</pre>
+
+<p>
+Alternatively, we associate any given Äction" with
+an entire class of components.  For JButtons, we create 
+button class that comes with an action:
+
+</p><p>
+	
+</p><pre>	class ActionButton extends JButton {
+	  public ActionButton(Action a) {
+	    setText((String)a.getValue(Action.NAME));
+	    Icon icon = (Icon)a.getValue(Action.SMALL\_ICON);
+	    if (icon != null) setIcon(icon)
+	    addActionListener(a);
+	  }// ActionButton constructor
+	}// ActionButton class
+
+	// instance it!
+	redButton = new ActionButton(redAction);
+	
+</pre>
+
+<p>
+NOTE: If we introduce ÄctionButtons" then STEPS 2 and 3
+should be interchanged!
+
+</p><p>
+STEP 4: Now add ActionButtons to a menu, then to the menu bar:
+
+</p><p>
+	
+</p><pre> 	// create the menu of ActionButtons:
+	JMenu m = new JMenu("Color");
+	m.add(redAction);
+	m.add(blueAction);
+
+	// add menu to menubar
+	JMenuBar mbar = new JMenuBar();
+	mbar.add(m);
+	setJMenubar(mbar);
+	
+</pre>
+
+<p>
+
+	   <a href="#linkSection-13"> [Previous Section]</a> 
+	    <a name="linkSection-14"> 
+     </a><a href="#linkSection-0"> [Next Section]</a>
+	    
+ 
+ 
+	 <a href="#top" name="bot">
+	Go to Top of Page
+	 </a>
+ 
+
+</p></font></font></font></font><p><font color="#0000FF"><font color="#000000"><font color="#0000FF"><font color="#000000">
+</font></font></font></font>
+<br><br></p><hr><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.01.<br>On 30 Apr 2003, 17:43.</small>
+
+</body></html>
